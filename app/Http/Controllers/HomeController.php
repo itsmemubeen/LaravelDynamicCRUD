@@ -16,26 +16,36 @@ class HomeController extends Controller
     {
         $data = $request->all();
 
-        function loopValues($arrayValues, $request)
-        {
-            $arraynama = '';
+        $data2 =  $request->file();
 
-            $array = array_values($arrayValues);
-            for ($x = 7; $x < count($array); $x++) {
-                if ($request->hasFile($array[$x])) {
-                    $img = $request->file($array[$x]);
-                    $imageName =
-                        'image-' .
-                        (strtotime(now()) . rand(111, 99)) .
-                        '.' .
-                        $img->getClientOriginalExtension();
-                    $request
-                        ->file($array[$x])
-                        ->move(public_path() . '/assets/images/', $imageName);
-                }
-                $arraynama .= $array[$x] . ',';
+        $r = array_pop($data2[0]->originalName);
+
+        dd($r);
+
+        function images($data2, $request){
+
+            $data2 = array_shift(array_values($data2));
+
+            for($x=0; $x < count($data2); $x++){
+                $img = $request->file($data2[$x]);
+                $imageName ='image-' .(strtotime(now()) . rand(111, 99)) .'.' .$img->getClientOriginalExtension();
+                $request->file($data2[$x])->move(public_path() . '/assets/images/', $imageName);
+                $data[$data2[$x]] = $imageName;
             }
-            return rtrim($arraynama, ',');
+            return true;
+        }
+            
+        $result=images($data2,$request);
+        dd($result);
+
+        function loopValues($arrayValues){
+            $arraynama = '';
+            $array = array_values($arrayValues);
+        
+            for($x=3 ;$x < count($array); $x++){
+                $arraynama .= $array[$x] . ',';    
+            }
+            return rtrim($arraynama, ",");
         }
 
         function loopFileds($arrayFileds)
@@ -71,8 +81,7 @@ class HomeController extends Controller
 
         $values = Valuesloop($data);
         $fileds = loopFileds($data);
-        echo $valuesdata = loopValues($data, $request);
-        die();
+        $valuesdata = loopValues($data, $request);
         $final = explode(',', $valuesdata);
         $updateQuery = updateQuery($data);
 
